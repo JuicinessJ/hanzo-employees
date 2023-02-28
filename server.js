@@ -1,18 +1,104 @@
 const mysql = require('mysql2');
 const cTable = require('console.table');
-const { default: inquirer } = require('inquirer');
+const inquirer = require('inquirer');
 
 const db = mysql.createConnection (
     {
         host: 'localhost',
         user: 'root',
+        port: 3306,
         password: 'qGS<Z!Tci]14-)e}',
         database: 'employee_db'
     },
     console.log('Connected to the employee_db database.')
 );
 
-reRun => {
+view = (answer) => {
+    db.query(`SELECT * FROM ${answer}`, (err, data) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.table(data);
+        }
+        reRun();
+    })
+}
+
+
+addDepartment = () => {
+    inquirer.prompt([
+        {
+            message: 'What would you like to name this department?',
+            type: 'input',
+            name: 'departmentName'
+        }
+    ])
+    .then((answer) => {
+        db.query(`INSERT INTO department (name) VALUES (?)`, [answer.departmentName]);
+        reRun();
+    })
+}
+
+
+addRole = () => {
+    inquirer.prompt([
+        {
+            message: 'What would you like to name this role?',
+            type: 'input',
+            name: 'roleName'
+        },
+        {
+            message: 'What would you like to give for the salary of that role?',
+            type: 'input',
+            name: 'roleSalary'
+        },
+        {
+            message: 'What department will this role be in?',
+            type: 'list',
+            choices: [],
+            name: 'roleDepartment'
+        }
+    ])
+    .then((answer) => {
+        db.query(`INSERT INTO role (name, salary, department) VALUES (?, ?, ?)`, [answer.roleName, answer.roleSalary, answer.roleDepartment]);
+        reRun();
+    })
+}
+
+
+addEmployee = () => {
+    inquirer.prompt([
+        {
+            message: 'What is their first name?',
+            type: 'input',
+            name: 'employeeFirst'
+        },
+        {
+            message: 'What is their last name?',
+            type: 'input',
+            name: 'employeeLast'
+        },
+        {
+            message: 'What is their role?',
+            type: 'list',
+            choices: [],
+            name: 'employeeRole'
+        },
+        {
+            message: 'Who is their Manager?',
+            type: 'list',
+            choices: [],
+            name: 'employeeManager'
+        }
+    ])
+    .then((answer) => {
+        db.query(`INSERT INTO employee (firstName, lastName, role, manager) VALUES (?, ?, ?, ?)`, [answer.firstName, answer.lastName, answer.role, answer.manager]);
+        reRun();
+    })
+}
+
+
+reRun = () => {
     inquirer.prompt([
         {
             message: "What would you like to do?",
@@ -33,11 +119,8 @@ reRun => {
                     }
                 ])
                 .then((answer) => {
-                    // db.query(`SHOW TABLES ${answer.view}`);
-                    // let table = cTable(['','',...]);
-                    // console.log(table);
-                    reRun();
-                })
+                    view(answer.view)
+                    })
             break;
             case 'Add':
                 inquirer.prompt([
@@ -51,99 +134,29 @@ reRun => {
                 .then((answer) => {
                     switch(answer.add) {
                         case 'Department':
-                            inquirer.prompt([
-                                {
-                                    message: 'What would you like to name this department?',
-                                    type: 'input',
-                                    name: 'departmentName'
-                                }
-                            ])
-                            .then((department) => {
-                                // db.query(``);
-                                // let table = cTable(['','',...]);
-                                // console.log(table);
-                                reRun();
-                            })
+                            addDepartment();
                         break;
                         case 'Role':
-                            inquirer.prompt([
-                                {
-                                    message: 'What would you like to name this role?',
-                                    type: 'input',
-                                    name: 'roleName'
-                                },
-                                {
-                                    message: 'What would you like to give for the salary of that role?',
-                                    type: 'input',
-                                    name: 'roleSalary'
-                                },
-                                {
-                                    message: 'What department will this role be in?',
-                                    type: 'list',
-                                    choices: [],
-                                    name: 'roleDepartment'
-                                }
-                            ])
-                            .then((role) => {
-                                // db.query();
-                                // let table = cTable(['','',...]);
-                                // console.log(table);
-                                reRun();
-                            })
+                            addRole();
                         break;
                         case 'Employee':
-                            inquirer.prompt([
-                                {
-                                    message: 'What is their first name?',
-                                    type: 'input',
-                                    name: 'employeeFirst'
-                                },
-                                {
-                                    message: 'What is their last name?',
-                                    type: 'input',
-                                    name: 'employeeLast'
-                                },
-                                {
-                                    message: 'What is their role?',
-                                    type: 'list',
-                                    choices: [],
-                                    name: 'employeeRole'
-                                },
-                                {
-                                    message: 'Who is their Manager?',
-                                    type: 'list',
-                                    choices: [],
-                                    name: 'employeeManager'
-                                }
-                            ])
-                            .then((employee) => {
-                                // db.query();
-                                // let table = cTable(['','',...]);
-                                // console.log(table);
-                                reRun();
-                            })
+                            addEmployee();
                         break;
                     }
-                    // reRun();
                 })
             break;
-            case 'Update':
+            default:
                 //update employee
                 //db.query?
                 // db.query('UPDATE');
                 // let table = cTable(['','',...]);
                 // console.log(table);
-                reRun();
+                // reRun();
         }
     })
-    
 }
 
 
+reRun();
 
-
-// db.query('SELECT * FROM employees', function (err, results) {
-//     cTable(results);
-// });
-
-// db.query(`ALERT TABLE employee ${role}`)
+// db.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [answers.firstName, answers.lastName, etc])
