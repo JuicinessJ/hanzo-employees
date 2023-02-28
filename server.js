@@ -55,7 +55,7 @@ addRole = () => {
         {
             message: 'What department will this role be in?',
             type: 'list',
-            choices: [],
+            choices: ['Front', 'Middle', 'Back'],
             name: 'roleDepartment'
         }
     ])
@@ -81,13 +81,13 @@ addEmployee = () => {
         {
             message: 'What is their role?',
             type: 'list',
-            choices: [],
+            choices: ['Front', 'Middle', 'Back'],
             name: 'employeeRole'
         },
         {
             message: 'Who is their Manager?',
             type: 'list',
-            choices: [],
+            choices: ['Alpha', 'Beta', 'Charlie', 'Delta', 'Echo'],
             name: 'employeeManager'
         }
     ])
@@ -95,6 +95,13 @@ addEmployee = () => {
         db.query(`INSERT INTO employee (firstName, lastName, role, manager) VALUES (?, ?, ?, ?)`, [answer.firstName, answer.lastName, answer.role, answer.manager]);
         reRun();
     })
+}
+
+
+updateDB = () => {
+    // dont remember which route to take need to rewatch video.
+    // db.query(`UPDATE`)
+    // db.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [answers.firstName, answers.lastName, etc])
 }
 
 
@@ -146,17 +153,10 @@ reRun = () => {
                 })
             break;
             default:
-                //update employee
-                //db.query?
-                // db.query('UPDATE');
-                // let table = cTable(['','',...]);
-                // console.log(table);
-                // reRun();
+                updateDB();
         }
     })
 }
 
 
 reRun();
-
-// db.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [answers.firstName, answers.lastName, etc])
