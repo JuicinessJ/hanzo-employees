@@ -55,12 +55,13 @@ addRole = () => {
         {
             message: 'What department will this role be in?',
             type: 'list',
+            key: 'number',
             choices: ['Front', 'Middle', 'Back'],
             name: 'roleDepartment'
         }
     ])
     .then((answer) => {
-        console.log(answer)
+        console.log(answer.roleDepartment)
         db.query(`INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`, [answer.roleName, answer.roleSalary, answer.roleDepartment]);
         reRun();
     })
@@ -100,9 +101,23 @@ addEmployee = () => {
 
 
 updateDB = () => {
-    // dont remember which route to take need to rewatch video.
-    // db.query(`UPDATE`)
-    // db.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [answers.firstName, answers.lastName, etc])
+    inquirer.prompt([
+        {
+            message: 'Which employee would you like to update?',
+            type: 'list',
+            choices: [],
+            name: 'updatedEmployee'
+        },
+        {
+            message: 'What role will the employee be?',
+            type: 'list',
+            choices: [],
+            name: 'updatedRole'
+        }
+    ])
+    .then((answer) => {
+        db.query(`UPDATE employee SET role_id = ${answer.updatedRole} WHERE id = ${answer.updatedEmployee}`);
+    })
 }
 
 
