@@ -60,7 +60,8 @@ addRole = () => {
         }
     ])
     .then((answer) => {
-        db.query(`INSERT INTO role (name, salary, department) VALUES (?, ?, ?)`, [answer.roleName, answer.roleSalary, answer.roleDepartment]);
+        console.log(answer)
+        db.query(`INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`, [answer.roleName, answer.roleSalary, answer.roleDepartment]);
         reRun();
     })
 }
@@ -92,7 +93,7 @@ addEmployee = () => {
         }
     ])
     .then((answer) => {
-        db.query(`INSERT INTO employee (firstName, lastName, role, manager) VALUES (?, ?, ?, ?)`, [answer.firstName, answer.lastName, answer.role, answer.manager]);
+        db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`, [answer.firstName, answer.lastName, answer.role, answer.manager]);
         reRun();
     })
 }
@@ -121,7 +122,7 @@ reRun = () => {
                     {
                         message: 'What would you like to view?',
                         type: 'list',
-                        choices: ['role', 'department', 'employee'],
+                        choices: ['Role', 'Department', 'Employee'],
                         name: 'view'
                     }
                 ])
