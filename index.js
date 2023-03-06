@@ -39,14 +39,14 @@ viewRole = () => {
 
 
 viewEmployee = () => {
-    // db.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, employee.manager_id FROM ((employee INNER JOIN role ON employee.role_id = role.title, employee.role_id = role.salary) INNER JOIN department ON employee.role_id = role.department_id = department.name)', (err, data) => {
-    //     if (err) {
-    //         console.error(err)
-    //     } else {
-    //         console.table(data)
-    //     }
+    db.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, employee.manager_id FROM ((employee INNER JOIN role ON employee.role_id = role.id) INNER JOIN department ON role.department_id = department.id)', (err, data) => {
+        if (err) {
+            console.error(err)
+        } else {
+            console.table(data)
+        }
         reRun();
-    // });
+    });
 }
 
 
@@ -94,32 +94,26 @@ addRole = () => {
     })
 }
 
-// findRoles = () => {
-//     // Find all role and return it as a arr to be used inside addEmployee.employeeRole.
-//     // db.query(`SELECT * FROM role`, (err, data) => {
-//     //     if (err) {
-//     //         console.error(err)
-//     //     } else {
-//     //         let possibleRoles;
-//     //         for(let i = 0; i < data.length; i++) {
-//     //             possibleRoles.push(data[i].title)
-//     //         }
-//     //         return possibleRoles;
-//     //     }
-//     // })
-// }
 
 addEmployee = () => {
+    let possibleRoles = [];
+    let possibleManagers = [];
     db.query(`SELECT * FROM role`, (err, data) => {
         if (err) {
             console.error(err)
         } else {
-            let possibleRoles;
             for(let i = 0; i < data.length; i++) {
-                possibleRoles.push(data[i].title)
+                possibleRoles.push(`${data[i].id}. ${data[i].title}`)
             }
-        }
-    })
+            db.query(`SELECT * FROM employee`, (err, data) => {
+                if (err) {
+                    console.error(err)
+                } else {
+                    for(let i = 0; i < data.length; i++) {
+                        possibleManagers.push(`${data[i].id}. ${data[i].first_name} ${data[i].last_name}`)
+                    }
+                }
+            })
     inquirer.prompt([
         {
             message: 'What is their first name?',
@@ -134,41 +128,72 @@ addEmployee = () => {
         {
             message: 'What is their role?',
             type: 'list',
-            choices: possibleRoles,
+            choices() {
+                return possibleRoles;
+            },
             name: 'employeeRole'
         },
         {
             message: 'Who is their Manager?',
             type: 'list',
-            choices: ['Chief Legal Officer', 'Chief Revenue Officer', 'Chief Marketing Officer', 'Chief Technology Officer'],
+            choices() {
+                return possibleManagers;
+            },
             name: 'employeeManager'
         }
     ])
     .then((answer) => {
-        db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`, [answer.firstName, answer.lastName, answer.role, answer.manager]);
+        db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`, [answer.employeeFirst, answer.employeeLast, answer.employeeRole.split('.')[0], answer.employeeManager.split('.')[0]]);
         reRun();
     })
+}
+})
 }
 
 
 updateDB = () => {
+    let possibleRoles = [];
+    let possibleEmployee = [];
+    db.query(`SELECT * FROM role`, (err, data) => {
+        if (err) {
+            console.error(err)
+        } else {
+            for(let i = 0; i < data.length; i++) {
+                possibleRoles.push(`${data[i].id}. ${data[i].title}`)
+            }
+            db.query(`SELECT * FROM employee`, (err, data) => {
+                if (err) {
+                    console.error(err)
+                } else {
+                    for(let i = 0; i < data.length; i++) {
+                        possibleEmployee.push(`${data[i].id}. ${data[i].first_name} ${data[i].last_name}`)
+                    }
+                }
+            console.log(possibleEmployee);
     inquirer.prompt([
         {
             message: 'Which employee would you like to update?',
             type: 'list',
-            choices: [],
+            choices() {
+                return possibleEmployee;
+            },
             name: 'updatedEmployee'
         },
         {
             message: 'What role will the employee be?',
             type: 'list',
-            choices: [],
+            choices() {
+                return possibleRoles;
+            },
             name: 'updatedRole'
         }
     ])
     .then((answer) => {
-        db.query(`UPDATE employee SET role_id = ${answer.updatedRole} WHERE id = ${answer.updatedEmployee}`);
+        db.query(`UPDATE employee SET role_id = ${answer.updatedRole.split('.')[0]} WHERE id = ${answer.updatedEmployee.split('.')[0]}`);
+        reRun();
     })
+})
+}})
 }
 
 
@@ -177,7 +202,7 @@ reRun = () => {
         {
             message: "What would you like to do?",
             type: "list",
-            choices: ['View','Add','Update'],
+            choices: ['View','Add','Update', 'Exit'],
             name: "toDo"
         }
     ])
@@ -229,8 +254,11 @@ reRun = () => {
                     }
                 })
             break;
+            case 'Update':
+            updateDB();
             default:
-                updateDB();
+                console.log('Thank You for using.')
+                process.exit();
         }
     })
 }
