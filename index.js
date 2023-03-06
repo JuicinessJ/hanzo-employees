@@ -66,6 +66,14 @@ addDepartment = () => {
 
 
 addRole = () => {
+    let possibleDepartment = [];
+    db.query(`SELECT * FROM department`, (err, data) => {
+        if (err) {
+            console.error(err)
+        } else {
+            for(let i = 0; i < data.length; i++) {
+                possibleDepartment.push(`${data[i].id}. ${data[i].name}`)
+            }
     inquirer.prompt([
         {
             message: 'What would you like to name this role?',
@@ -80,18 +88,21 @@ addRole = () => {
         {
             message: 'What department will this role be in?',
             type: 'list',
-            choices: ['1', '2', '3'],
+            choices() {
+                return possibleDepartment;
+            },
             name: 'roleDepartment'
         }
     ])
     .then((answer) => {
         console.log(answer.roleDepartment)
-        db.query(`INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`, [answer.roleName, answer.roleSalary, answer.roleDepartment]);
+        db.query(`INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`, [answer.roleName, answer.roleSalary, answer.roleDepartment.split('.')[0]]);
         reRun();
     })
     .catch((err) => {
         console.error(err);
     })
+}})
 }
 
 
@@ -161,6 +172,7 @@ updateDB = () => {
             for(let i = 0; i < data.length; i++) {
                 possibleRoles.push(`${data[i].id}. ${data[i].title}`)
             }
+
             db.query(`SELECT * FROM employee`, (err, data) => {
                 if (err) {
                     console.error(err)
@@ -202,7 +214,7 @@ reRun = () => {
         {
             message: "What would you like to do?",
             type: "list",
-            choices: ['View','Add','Update', 'Exit'],
+            choices: ['View','Add','Update','Exit'],
             name: "toDo"
         }
     ])
@@ -255,7 +267,8 @@ reRun = () => {
                 })
             break;
             case 'Update':
-            updateDB();
+                updateDB();
+                break;
             default:
                 console.log('Thank You for using.')
                 process.exit();
