@@ -13,15 +13,40 @@ const db = mysql.createConnection (
     console.log('Connected to the employee_db database.')
 );
 
-view = (answer) => {
-    db.query(`SELECT * FROM ${answer}`, (err, data) => {
+
+viewDepartment = () => {
+    db.query('SELECT * FROM department', (err, data) => {
         if (err) {
-            console.log(err);
+            console.error(err);
         } else {
             console.table(data);
         }
         reRun();
-    })
+    });
+}
+
+
+viewRole = () => {
+    db.query('SELECT role.id, role.title, department.name, role.salary FROM role INNER JOIN department ON role.department_id = department.id', (err, data) => {
+        if (err) {
+            console.error(err);
+        } else {
+            console.table(data);
+        }
+        reRun();
+    });
+}
+
+
+viewEmployee = () => {
+    // db.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, employee.manager_id FROM ((employee INNER JOIN role ON employee.role_id = role.title, employee.role_id = role.salary) INNER JOIN department ON employee.role_id = role.department_id = department.name)', (err, data) => {
+    //     if (err) {
+    //         console.error(err)
+    //     } else {
+    //         console.table(data)
+    //     }
+        reRun();
+    // });
 }
 
 
@@ -55,8 +80,7 @@ addRole = () => {
         {
             message: 'What department will this role be in?',
             type: 'list',
-            key: 'number',
-            choices: ['Front', 'Middle', 'Back'],
+            choices: ['1', '2', '3'],
             name: 'roleDepartment'
         }
     ])
@@ -65,10 +89,37 @@ addRole = () => {
         db.query(`INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`, [answer.roleName, answer.roleSalary, answer.roleDepartment]);
         reRun();
     })
+    .catch((err) => {
+        console.error(err);
+    })
 }
 
+// findRoles = () => {
+//     // Find all role and return it as a arr to be used inside addEmployee.employeeRole.
+//     // db.query(`SELECT * FROM role`, (err, data) => {
+//     //     if (err) {
+//     //         console.error(err)
+//     //     } else {
+//     //         let possibleRoles;
+//     //         for(let i = 0; i < data.length; i++) {
+//     //             possibleRoles.push(data[i].title)
+//     //         }
+//     //         return possibleRoles;
+//     //     }
+//     // })
+// }
 
 addEmployee = () => {
+    db.query(`SELECT * FROM role`, (err, data) => {
+        if (err) {
+            console.error(err)
+        } else {
+            let possibleRoles;
+            for(let i = 0; i < data.length; i++) {
+                possibleRoles.push(data[i].title)
+            }
+        }
+    })
     inquirer.prompt([
         {
             message: 'What is their first name?',
@@ -83,13 +134,13 @@ addEmployee = () => {
         {
             message: 'What is their role?',
             type: 'list',
-            choices: ['Front', 'Middle', 'Back'],
+            choices: possibleRoles,
             name: 'employeeRole'
         },
         {
             message: 'Who is their Manager?',
             type: 'list',
-            choices: ['Alpha', 'Beta', 'Charlie', 'Delta', 'Echo'],
+            choices: ['Chief Legal Officer', 'Chief Revenue Officer', 'Chief Marketing Officer', 'Chief Technology Officer'],
             name: 'employeeManager'
         }
     ])
@@ -142,7 +193,17 @@ reRun = () => {
                     }
                 ])
                 .then((answer) => {
-                    view(answer.view)
+                    switch(answer.view) {
+                        case 'Department':
+                            viewDepartment();
+                        break;
+                        case 'Role':
+                            viewRole();
+                        break;
+                        case 'Employee':
+                            viewEmployee();
+                        break;
+                    }
                     })
             break;
             case 'Add':
