@@ -162,7 +162,7 @@ addEmployee = () => {
 }
 
 
-updateDB = () => {
+updateEmployee = () => {
     let possibleRoles = [];
     let possibleEmployee = [];
     db.query(`SELECT * FROM role`, (err, data) => {
@@ -206,6 +206,19 @@ updateDB = () => {
     })
 })
 }})
+}
+
+updateManagers = () => {
+    let possibleManagers = [];
+    db.query(`SELECT * FROM employee`, (err,data) => {
+        if (err) {
+            console.error(err);
+        } else {
+            for(let i = 0; i < data.length; i++) {
+                possibleManagers.push(`${data[i].id}. ${data[i].first_name} ${data[i].last_name}`)
+            }
+        }
+})
 }
 
 
@@ -267,6 +280,24 @@ reRun = () => {
                 })
             break;
             case 'Update':
+                inquirer.prompt([
+                    {
+                        message: 'What would you like to update?',
+                        type: 'list',
+                        choices: ['Employee', 'Manager'],
+                        name: 'update'
+                    }
+                ])
+                .then((answer) => {
+                    switch(answer.update) {
+                        case 'Employee':
+                            updateEmployee();
+                        break;
+                        case 'Manager':
+                            updateManagers();
+                        break;
+                    }
+                })
                 updateDB();
                 break;
             default:
