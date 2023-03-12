@@ -23,7 +23,7 @@ https://drive.google.com/file/d/1oXaK_4l_a5k_ue69pdoxDOTBR4SpsCU6/view
 
 # Credits
 
-Used old and previous contents with other outside resources such as google with led to W3, Mozilla, StackOverFlow, and documentations. Also received helped from Andrew + Savien.
+Used old and previous contents with other outside resources such as google with led to W3, Mozilla, StackOverFlow, and documentations. Also received helped from Andrew.
 
 ## License
 
